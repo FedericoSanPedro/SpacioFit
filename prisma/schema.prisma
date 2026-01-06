@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // provider = "prisma-client"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Alumno {
+  id            String        @id @default(uuid())
+  nombre        String
+  email         String        @unique
+  whatsapp      String?
+  fechaInicio   DateTime
+  estado        String
+  cumpleanos    DateTime?
+  createdAt     DateTime      @default(now())
+
+  turnoId       String
+  turno         Turno         @relation(fields: [turnoId], references: [id])
+
+  asistencias   Asistencia[]
+  pagos         Pago[]
+}
+
+model Turno {
+  id        String      @id @default(uuid())
+  hora      String      // "07:30"
+  alumnos   Alumno[]
+  asistencias Asistencia[]
+}
+
+model Asistencia {
+  id          String    @id @default(uuid())
+  fecha       DateTime
+  asistio     Boolean
+  pago        Boolean
+
+  alumnoId   String
+  alumno     Alumno    @relation(fields: [alumnoId], references: [id])
+
+  turnoId    String
+  turno      Turno     @relation(fields: [turnoId], references: [id])
+
+  @@unique([fecha, alumnoId, turnoId])
+}
+
+model Nivel {
+  id              String  @id @default(uuid())
+  nombre          String
+  horasMinimas    Int
+  reconocimiento  String
+  insignia        String?
+}
+
+model Pago {
+  id          String   @id @default(uuid())
+  monto       Float
+  fecha       DateTime @default(now())
+
+  alumnoId    String
+  alumno      Alumno   @relation(fields: [alumnoId], references: [id])
+}
