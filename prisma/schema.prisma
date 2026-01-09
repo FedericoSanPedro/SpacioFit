@@ -4,18 +4,17 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  // provider = "prisma-client"
-  // output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model Alumno {
-  id            String        @id @default(uuid())
+  id            Int           @id @default(autoincrement())
   nombre        String
   email         String        @unique
   whatsapp      String?
@@ -24,37 +23,38 @@ model Alumno {
   cumpleanos    DateTime?
   createdAt     DateTime      @default(now())
 
-  turnoId       String
+  turnoId       Int
   turno         Turno         @relation(fields: [turnoId], references: [id])
 
   asistencias   Asistencia[]
   pagos         Pago[]
 }
 
+
 model Turno {
-  id        String      @id @default(uuid())
+  id        Int           @id @default(autoincrement())
   hora      String      // "07:30"
   alumnos   Alumno[]
   asistencias Asistencia[]
 }
 
 model Asistencia {
-  id          String    @id @default(uuid())
+  id          Int           @id @default(autoincrement())
   fecha       DateTime
   asistio     Boolean
   pago        Boolean
 
-  alumnoId   String
+  alumnoId   Int      
   alumno     Alumno    @relation(fields: [alumnoId], references: [id])
 
-  turnoId    String
+  turnoId    Int      
   turno      Turno     @relation(fields: [turnoId], references: [id])
 
   @@unique([fecha, alumnoId, turnoId])
 }
 
 model Nivel {
-  id              String  @id @default(uuid())
+  id              Int     @id @default(autoincrement())
   nombre          String
   horasMinimas    Int
   reconocimiento  String
@@ -62,10 +62,10 @@ model Nivel {
 }
 
 model Pago {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   monto       Float
   fecha       DateTime @default(now())
 
-  alumnoId    String
+  alumnoId    Int
   alumno      Alumno   @relation(fields: [alumnoId], references: [id])
 }
