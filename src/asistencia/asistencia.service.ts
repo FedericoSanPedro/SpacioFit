@@ -9,7 +9,7 @@ export class AsistenciaService {
   async registrarAsistencia(dto: CreateAsistenciaDto) {
     const fecha = new Date(dto.fecha);
 
-    // Regla: no puede haber dos asistencias iguales
+    // evitar duplicados
     const existe = await this.prisma.asistencia.findFirst({
       where: {
         fecha,
@@ -19,12 +19,10 @@ export class AsistenciaService {
     });
 
     if (existe) {
-      throw new BadRequestException(
-        'Ya existe una asistencia para este alumno en esta fecha y turno',
-      );
+      throw new BadRequestException('La asistencia ya existe');
     }
 
-    return this.prisma.asistencia.create({
+    const asistencia = await this.prisma.asistencia.create({
       data: {
         fecha,
         asistio: dto.asistio,
@@ -33,5 +31,18 @@ export class AsistenciaService {
         turnoId: dto.turnoId,
       },
     });
+
+    // 👉 SUMA DE HORAS
+    if (dto.asistio) {
+      await this.prisma.alumno.update({
+        where: { id: dto.alumnoId },
+        data: {
+          horasTotales: { increment: 1 },
+        },
+      });
+    }
+
+    return asistencia;
   }
+
 }

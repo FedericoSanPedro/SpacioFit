@@ -26,6 +26,8 @@ model Alumno {
   turnoId       Int
   turno         Turno         @relation(fields: [turnoId], references: [id])
 
+  horasTotales  Int           @default(0)
+
   asistencias   Asistencia[]
   pagos         Pago[]
 }
