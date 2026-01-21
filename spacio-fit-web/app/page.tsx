@@ -1,43 +1,24 @@
-export default async function Dashboard() {
+'use client';
 
-  const res = await fetch(
-  `${process.env.NEXT_PUBLIC_API_URL}/alumnos/1/progreso`
-);
+import Link from 'next/link';
+import { getAlumnos, Alumno } from '@/lib/api';
 
-if (!res.ok) {
-  throw new Error("Error al cargar progreso");
-}
-
-const data = await res.json();
-/* 
-
-  const res = await fetch('http://localhost:3000/alumnos/1/progreso', {
-    cache: 'no-store',
-  });
-
-  const alumno = await res.json();
+export default async function Home() {
+  const alumnos: Alumno[] = await getAlumnos();
 
   return (
-    <main className="min-h-screen bg-secondary p-10">
-      <h1 className="text-3xl font-bold text-dark mb-6">
-        Dashboard Alumno
-      </h1>
+    <main className="p-6 text-white">
+      <h1 className="text-2xl font-bold mb-4">Alumnos</h1>
 
-      <div className="grid grid-cols-3 gap-6">
-        <Card title="Horas Totales" value={alumno.horasTotales} />
-        <Card title="Frecuencia Semanal" value={alumno.frecuenciaSemanal} />
-        <Card title="Nivel" value={alumno.nivelActual} />
-      </div>
+      <ul className="space-y-2">
+        {alumnos.map((alumno) => (
+          <Link key={alumno.id} href={`/alumnos/${alumno.id}`}>
+            <li className="p-4 bg-neutral-800 rounded hover:bg-neutral-700">
+              {alumno.nombre}
+            </li>
+          </Link>
+        ))}
+      </ul>
     </main>
   );
-}
-
-function Card({ title, value }: { title: string; value: any }) {
-  return (
-    <div className="bg-white rounded-xl p-6 shadow">
-      <p className="text-gray-500 text-sm">{title}</p>
-      <p className="text-2xl font-bold text-primary mt-2">{value}</p>
-    </div>
-  ); 
-  */
 }

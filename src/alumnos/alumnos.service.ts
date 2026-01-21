@@ -5,10 +5,21 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AlumnosService {
   constructor(private prisma: PrismaService) {}
 
-    private diffInDays(from: Date, to: Date): number {
-        const diff = to.getTime() - from.getTime();
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
-    }
+  private diffInDays(from: Date, to: Date): number {
+      const diff = to.getTime() - from.getTime();
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  async findAll() {
+    return this.prisma.alumno.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        email: true,
+      },
+      orderBy: { nombre: 'asc' },
+    });
+  }
 
   async getProgreso(alumnoId: number) {
     const alumno = await this.prisma.alumno.findUnique({
