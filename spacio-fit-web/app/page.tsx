@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { getAlumnos, Alumno } from '@/lib/api';
+import { getAlumnos, Alumno, AlumnoListItem } from '@/lib/api';
 
 export default async function Home() {
-  const alumnos: Alumno[] = await getAlumnos();
+  const alumnos: AlumnoListItem[] = await getAlumnos();
 
   return (
     <main className="p-6 text-white">

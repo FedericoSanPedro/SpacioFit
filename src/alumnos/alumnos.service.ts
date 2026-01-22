@@ -10,16 +10,58 @@ export class AlumnosService {
       return Math.floor(diff / (1000 * 60 * 60 * 24));
   }
 
+  async getAsistenciasChart(alumnoId: number) {
+    const asistencias = await this.prisma.asistencia.findMany({
+      where: { alumnoId },
+      orderBy: { fecha: 'asc' },
+    });
+
+    const map = new Map<string, { fecha: string; asistencias: number; faltas: number }>();
+
+    asistencias.forEach(a => {
+      const key = a.fecha.toISOString().split('T')[0];
+
+      if (!map.has(key)) {
+        map.set(key, { fecha: key, asistencias: 0, faltas: 0 });
+      }
+
+      if (a.asistio) {
+        map.get(key)!.asistencias += 1;
+      } else {
+        map.get(key)!.faltas += 1;
+      }
+    });
+
+    return Array.from(map.values());
+  }
+
   async findAll() {
-    return this.prisma.alumno.findMany({
-      select: {
-        id: true,
-        nombre: true,
-        email: true,
+    const alumnos = await this.prisma.alumno.findMany({
+      include: {
+        asistencias: true,
       },
-      orderBy: { nombre: 'asc' },
+      orderBy: {
+        fechaInicio: 'asc',
+      },
+    });
+
+    return alumnos.map(a => {
+      const horasTotales = a.asistencias.filter(x => x.asistio).length;
+      const antiguedadDias =
+        Math.floor(
+          (Date.now() - a.fechaInicio.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+      return {
+        id: a.id,
+        nombre: a.nombre,
+        estado: a.estado,
+        horasTotales,
+        antiguedadDias,
+      };
     });
   }
+
 
   async getProgreso(alumnoId: number) {
     const alumno = await this.prisma.alumno.findUnique({

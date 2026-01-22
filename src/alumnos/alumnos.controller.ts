@@ -11,6 +11,11 @@ export class AlumnosController {
     return this.alumnosService.findAll();
   }
 
+  @Get(':id/asistencias-chart')
+  getAsistenciasChart(@Param('id') id: string) {
+    return this.alumnosService.getAsistenciasChart(Number(id));
+  }
+
   @Get(':id/progreso')
   getProgreso(@Param('id') id: string) {
     const alumnoId = Number(id);

@@ -4,6 +4,14 @@ export type Alumno = {
   email: string;
 };
 
+export type AlumnoListItem = {
+  id: number;
+  nombre: string;
+  estado: string;
+  horasTotales: number;
+  antiguedadDias: number;
+};
+
 export type ProgresoAlumno = {
   alumnoId: number;
   nombre: string;
@@ -18,9 +26,15 @@ export type ProgresoAlumno = {
   estado: string;
 };
 
-const API_URL = 'http://localhost:3001';
+export type AsistenciaChartItem = {
+  fecha: string;
+  asistencias: number;
+  faltas: number;
+};
 
-export async function getAlumnos(): Promise<Alumno[]> {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function getAlumnos() {
   const res = await fetch(`${API_URL}/alumnos`, {
     cache: 'no-store',
   });
@@ -29,7 +43,7 @@ export async function getAlumnos(): Promise<Alumno[]> {
     throw new Error('Error al obtener alumnos');
   }
 
-  return res.json();
+  return res.json() as Promise<AlumnoListItem[]>;
 }
 
 export async function getProgresoAlumno(
@@ -37,11 +51,29 @@ export async function getProgresoAlumno(
 ): Promise<ProgresoAlumno> {
   const res = await fetch(
     `${API_URL}/alumnos/${alumnoId}/progreso`,
-    { cache: 'no-store' }
+    {
+      next: {
+        revalidate: 60, // segundos
+      },
+    }
   );
 
   if (!res.ok) {
     throw new Error('Error al obtener progreso');
+  }
+
+  return res.json();
+}
+
+
+export async function getAsistenciasChart(alumnoId: number) {
+  const res = await fetch(
+    `${API_URL}/alumnos/${alumnoId}/asistencias-chart`,
+    { cache: 'no-store' }
+  );
+
+  if (!res.ok) {
+    throw new Error('Error al obtener asistencias');
   }
 
   return res.json();
