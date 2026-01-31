@@ -65,11 +65,16 @@ export async function getProgresoAlumno(
   return res.json();
 }
 
-
 export async function getAsistenciasChart(alumnoId: number) {
+  const token = localStorage.getItem('token');
+
   const res = await fetch(
     `${API_URL}/alumnos/${alumnoId}/asistencias-chart`,
-    { cache: 'no-store' }
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
 
   if (!res.ok) {

@@ -71,3 +71,11 @@ model Pago {
   alumnoId    Int
   alumno      Alumno   @relation(fields: [alumnoId], references: [id])
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}

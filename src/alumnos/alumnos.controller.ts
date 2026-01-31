@@ -1,6 +1,9 @@
 import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
 import { AlumnosService } from './alumnos.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('alumnos')
 export class AlumnosController {
   constructor(private readonly alumnosService: AlumnosService) {
