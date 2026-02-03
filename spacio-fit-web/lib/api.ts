@@ -43,6 +43,11 @@ export async function getAlumnos() {
     throw new Error('Error al obtener alumnos');
   }
 
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
   return res.json() as Promise<AlumnoListItem[]>;
 }
 
@@ -57,6 +62,10 @@ export async function getProgresoAlumno(
       },
     }
   );
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
 
   if (!res.ok) {
     throw new Error('Error al obtener progreso');
@@ -76,6 +85,11 @@ export async function getAsistenciasChart(alumnoId: number) {
       },
     }
   );
+  
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
 
   if (!res.ok) {
     throw new Error('Error al obtener asistencias');

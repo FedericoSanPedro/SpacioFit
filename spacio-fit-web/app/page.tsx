@@ -1,22 +1,15 @@
-'use client';
-
 import Link from 'next/link';
 import { getAlumnos, Alumno, AlumnoListItem } from '@/lib/api';
 
 export default async function Home() {
   const alumnos: AlumnoListItem[] = await getAlumnos();
 
-  return (
-    <main className="p-6 text-white">
-      <h1 className="text-2xl font-bold mb-4">Alumnos</h1>
-
-      <ul className="space-y-2">
-        {alumnos.map((alumno) => (
-          <Link key={alumno.id} href={`/alumnos/${alumno.id}`}>
-            <li className="p-4 bg-neutral-800 rounded hover:bg-neutral-700">
-              {alumno.nombre}
-            </li>
-          </Link>
+  return  (
+    <main className="p-6">
+      <h1 className="text-2xl font-bold">Alumnos</h1>
+      <ul>
+        {alumnos.map((a) => (
+          <li key={a.id}>{a.nombre}</li>
         ))}
       </ul>
     </main>

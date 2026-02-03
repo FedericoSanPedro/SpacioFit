@@ -1,99 +1,61 @@
 'use client';
 
 import { useState } from 'react';
+import AuthInput from '@/components/AuthInput';
+import AuthButton from '@/components/AuthButton';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const router = useRouter();
 
-  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     setLoading(true);
+    setError('');
 
-    // 🔜 después lo conectamos al backend
-    console.log('Register payload:', form);
+    try {
+      const res = await fetch('http://localhost:3001/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    setLoading(false);
+      if (!res.ok) throw new Error();
+
+      router.push('/login');
+    } catch {
+      setError('Error creating user');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 border p-6 rounded"
+        onSubmit={handleRegister}
+        className="bg-gray-950 border border-gray-800 p-6 rounded w-full max-w-sm space-y-4"
       >
-        <h1 className="text-2xl font-bold">Create account</h1>
+        <h1 className="text-xl font-bold text-white">Register</h1>
 
-        {error && (
-          <p className="text-red-500 text-sm">{error}</p>
-        )}
-
-        <input
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-
-        <input
-          name="password"
+        <AuthInput label="Name" value={name} onChange={setName} />
+        <AuthInput label="Email" value={email} onChange={setEmail} />
+        <AuthInput
+          label="Password"
           type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
+          value={password}
+          onChange={setPassword}
         />
 
-        <input
-          name="confirmPassword"
-          type="password"
-          placeholder="Confirm password"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <button
-          disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded disabled:opacity-50"
-        >
-          {loading ? 'Creating account...' : 'Register'}
-        </button>
+        <AuthButton text="Create account" loading={loading} />
       </form>
     </div>
   );

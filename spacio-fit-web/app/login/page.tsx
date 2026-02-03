@@ -1,67 +1,64 @@
 'use client';
 
 import { useState } from 'react';
+import AuthInput from '@/components/AuthInput';
+import AuthButton from '@/components/AuthButton';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
-    const res = await fetch('http://localhost:3001/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch('http://localhost:3001/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!res.ok) {
-      setError('Invalid credentials');
-      return;
+      if (!res.ok) throw new Error('Invalid credentials');
+
+      const data = await res.json();
+      console.log('LOGIN RESPONSE', data);
+      const token = data.access_token ?? data.accessToken;
+      localStorage.setItem('token', token);
+
+      router.push('/alumnos');
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
     }
-
-    const data = await res.json();
-    localStorage.setItem('token', data.access_token);
-
-    router.push('/alumnos');
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded w-80 space-y-4"
+        onSubmit={handleLogin}
+        className="bg-gray-950 border border-gray-800 p-6 rounded w-full max-w-sm space-y-4"
       >
-        <h1 className="text-xl font-bold text-black">Login</h1>
+        <h1 className="text-xl font-bold text-white">Login</h1>
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 text-black"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
+        <AuthInput label="Email" value={email} onChange={setEmail} />
+        <AuthInput
+          label="Password"
           type="password"
-          placeholder="Password"
-          className="w-full border p-2 text-black"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={setPassword}
         />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2"
-        >
-          Login
-        </button>
+        <AuthButton text="Login" loading={loading} />
       </form>
     </div>
   );
