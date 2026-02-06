@@ -1,7 +1,9 @@
-export async function authFetch(url: string, options: RequestInit = {}) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function authFetch(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
 
-  const res = await fetch(url, {
+  const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers: {
       ...(options.headers || {}),
@@ -11,6 +13,7 @@ export async function authFetch(url: string, options: RequestInit = {}) {
   });
 
   if (res.status === 401) {
+    localStorage.removeItem('token');
     window.location.href = '/login';
     throw new Error('Unauthorized');
   }

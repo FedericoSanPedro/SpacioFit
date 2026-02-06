@@ -35,8 +35,12 @@ export type AsistenciaChartItem = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getAlumnos() {
+  const token = localStorage.getItem('token');
   const res = await fetch(`${API_URL}/alumnos`, {
     cache: 'no-store',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
   });
 
   if (!res.ok) {
@@ -54,9 +58,13 @@ export async function getAlumnos() {
 export async function getProgresoAlumno(
   alumnoId: number
 ): Promise<ProgresoAlumno> {
+  const token = localStorage.getItem('token');
   const res = await fetch(
     `${API_URL}/alumnos/${alumnoId}/progreso`,
     {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       next: {
         revalidate: 60, // segundos
       },

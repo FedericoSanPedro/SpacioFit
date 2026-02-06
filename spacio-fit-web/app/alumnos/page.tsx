@@ -5,12 +5,19 @@ import { authFetch } from '@/lib/authFetch';
 
 export default function AlumnosPage() {
   const [alumnos, setAlumnos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const res = await authFetch('http://localhost:3001/alumnos');
+      try {
+      const res = await authFetch(`/alumnos`);
       const data = await res.json();
       setAlumnos(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
