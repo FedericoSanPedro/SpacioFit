@@ -13,6 +13,22 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  ADMIN
+  TRAINER
+  STUDENT
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+
+  createdAt DateTime @default(now())
+}
+
 model Alumno {
   id            Int           @id @default(autoincrement())
   nombre        String
@@ -72,10 +88,3 @@ model Pago {
   alumno      Alumno   @relation(fields: [alumnoId], references: [id])
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-}

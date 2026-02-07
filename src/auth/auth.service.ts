@@ -12,6 +12,7 @@ export class AuthService {
     name: string;
     email: string;
     password: string;
+    role?: 'ADMIN' | 'TRAINER' | 'STUDENT';
   }) {
     const { name, email, password } = data;
 
@@ -30,17 +31,20 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
+        role: data.role || 'STUDENT',
       },
       select: {
         id: true,
         name: true,
         email: true,
+        role: true,
         createdAt: true,
       },
     });
 
     return user;
   }
+
 
   async login(data: { email: string; password: string }) {
     const { email, password } = data;
@@ -62,6 +66,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      role: user.role 
     };
 
     return {

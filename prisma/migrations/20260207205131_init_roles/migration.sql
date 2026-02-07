@@ -1,6 +1,21 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'TRAINER', 'STUDENT');
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'STUDENT',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateTable
 CREATE TABLE "Alumno" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "whatsapp" TEXT,
@@ -8,14 +23,15 @@ CREATE TABLE "Alumno" (
     "estado" TEXT NOT NULL,
     "cumpleanos" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "turnoId" TEXT NOT NULL,
+    "turnoId" INTEGER NOT NULL,
+    "horasTotales" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "Alumno_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Turno" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "hora" TEXT NOT NULL,
 
     CONSTRAINT "Turno_pkey" PRIMARY KEY ("id")
@@ -23,19 +39,19 @@ CREATE TABLE "Turno" (
 
 -- CreateTable
 CREATE TABLE "Asistencia" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL,
     "asistio" BOOLEAN NOT NULL,
     "pago" BOOLEAN NOT NULL,
-    "alumnoId" TEXT NOT NULL,
-    "turnoId" TEXT NOT NULL,
+    "alumnoId" INTEGER NOT NULL,
+    "turnoId" INTEGER NOT NULL,
 
     CONSTRAINT "Asistencia_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Nivel" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
     "horasMinimas" INTEGER NOT NULL,
     "reconocimiento" TEXT NOT NULL,
@@ -46,13 +62,16 @@ CREATE TABLE "Nivel" (
 
 -- CreateTable
 CREATE TABLE "Pago" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "monto" DOUBLE PRECISION NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "alumnoId" TEXT NOT NULL,
+    "alumnoId" INTEGER NOT NULL,
 
     CONSTRAINT "Pago_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Alumno_email_key" ON "Alumno"("email");
