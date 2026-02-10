@@ -10,6 +10,21 @@ export class AlumnosService {
       return Math.floor(diff / (1000 * 60 * 60 * 24));
   }
 
+  async getMyProfile(userId: number) {
+    const alumno = await this.prisma.alumno.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, role: true },
+        },
+      },
+    });
+
+    if (!alumno) throw new NotFoundException('Alumno profile not found');
+
+    return alumno;
+  }
+
   async getAsistenciasChart(alumnoId: number) {
     const asistencias = await this.prisma.asistencia.findMany({
       where: { alumnoId },
@@ -39,6 +54,9 @@ export class AlumnosService {
     const alumnos = await this.prisma.alumno.findMany({
       include: {
         asistencias: true,
+        user: {
+          select: { name: true },
+        },
       },
       orderBy: {
         fechaInicio: 'asc',
@@ -54,7 +72,7 @@ export class AlumnosService {
 
       return {
         id: a.id,
-        nombre: a.nombre,
+        nombre: a.user.name,
         estado: a.estado,
         horasTotales,
         antiguedadDias,
@@ -62,12 +80,14 @@ export class AlumnosService {
     });
   }
 
-
   async getProgreso(alumnoId: number) {
     const alumno = await this.prisma.alumno.findUnique({
       where: { id: alumnoId },
       include: {
         asistencias: true,
+        user: {
+          select: { name: true },
+        },
       },
     });
 
@@ -78,10 +98,12 @@ export class AlumnosService {
     const asistenciasTotales = alumno.asistencias.filter(a => a.asistio).length;
     const faltas = alumno.asistencias.filter(a => !a.asistio).length;
 
+    const horasTotales = asistenciasTotales; // si 1 asistencia = 1 hora
+
     const nivelActual = await this.prisma.nivel.findFirst({
       where: {
         horasMinimas: {
-          lte: alumno.horasTotales,
+          lte: horasTotales,
         },
       },
       orderBy: {
@@ -92,7 +114,7 @@ export class AlumnosService {
     const proximoNivel = await this.prisma.nivel.findFirst({
       where: {
         horasMinimas: {
-          gt: alumno.horasTotales,
+          gt: horasTotales,
         },
       },
       orderBy: {
@@ -101,50 +123,39 @@ export class AlumnosService {
     });
 
     const hoy = new Date();
-
     const antiguedadDias = this.diffInDays(alumno.fechaInicio, hoy);
 
     const semanas = Math.max(1, Math.floor(antiguedadDias / 7));
-    const frecuenciaSemanal = Number(
-    (asistenciasTotales / semanas).toFixed(2),
-    );
+    const frecuenciaSemanal = Number((asistenciasTotales / semanas).toFixed(2));
 
     const porcentajeProgreso = proximoNivel
-    ? Math.min(
-        100,
-        Math.round(
-            (alumno.horasTotales / proximoNivel.horasMinimas) * 100,
-        ),
-        )
-    : 100;
+      ? Math.min(100, Math.round((horasTotales / proximoNivel.horasMinimas) * 100))
+      : 100;
 
-    const estado =
-    this.diffInDays(
-        new Date(
-        alumno.asistencias
-            .sort((a, b) => b.fecha.getTime() - a.fecha.getTime())[0]?.fecha ??
-            alumno.fechaInicio,
-        ),
-        hoy,
-    ) > 14
-        ? 'INACTIVO'
-        : 'ACTIVO';
+    const ultimaFecha = alumno.asistencias.length
+      ? alumno.asistencias.reduce(
+          (max, a) => (a.fecha > max ? a.fecha : max),
+          alumno.asistencias[0].fecha,
+        )
+      : alumno.fechaInicio;
+
+    const estado = this.diffInDays(ultimaFecha, hoy) > 14 ? 'INACTIVO' : 'ACTIVO';
 
     return {
-    alumnoId: alumno.id,
-    nombre: alumno.nombre,
-    horasTotales: alumno.horasTotales,
-    asistenciasTotales,
-    faltas,
-    antiguedadDias,
-    frecuenciaSemanal,
-    nivelActual: nivelActual?.nombre ?? 'Inicial',
-    porcentajeProgreso,
-    horasParaProximoNivel: proximoNivel
-        ? proximoNivel.horasMinimas - alumno.horasTotales
+      alumnoId: alumno.id,
+      nombre: alumno.user?.name || 'Unknown',
+      horasTotales,
+      asistenciasTotales,
+      faltas,
+      antiguedadDias,
+      frecuenciaSemanal,
+      nivelActual: nivelActual?.nombre ?? 'Inicial',
+      porcentajeProgreso,
+      horasParaProximoNivel: proximoNivel
+        ? proximoNivel.horasMinimas - horasTotales
         : 0,
-    estado,
+      estado,
     };
-
   }
+
 }

@@ -12,7 +12,7 @@ export class AuthService {
     name: string;
     email: string;
     password: string;
-    role?: 'ADMIN' | 'TRAINER' | 'STUDENT';
+    role?: 'Admin' | 'Trainer' | 'Alumno';
   }) {
     const { name, email, password } = data;
 
@@ -31,7 +31,16 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
-        role: data.role || 'STUDENT',
+        role: data.role || 'Alumno',
+        
+        alumno: (data.role || 'Alumno') === 'Alumno'
+          ? {
+              create: {
+                fechaInicio: new Date(),
+                estado: 'ACTIVO',
+              },
+            }
+          : undefined,
       },
       select: {
         id: true,

@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'TRAINER', 'STUDENT');
+CREATE TYPE "Role" AS ENUM ('Admin', 'Trainer', 'Alumno');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -7,7 +7,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'STUDENT',
+    "role" "Role" NOT NULL DEFAULT 'Alumno',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -16,17 +16,27 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Alumno" (
     "id" SERIAL NOT NULL,
-    "nombre" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
     "whatsapp" TEXT,
-    "fechaInicio" TIMESTAMP(3) NOT NULL,
-    "estado" TEXT NOT NULL,
+    "fechaInicio" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "estado" TEXT NOT NULL DEFAULT 'ACTIVO',
     "cumpleanos" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "turnoId" INTEGER NOT NULL,
     "horasTotales" INTEGER NOT NULL DEFAULT 0,
+    "turnoId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Alumno_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Trainer" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "telefono" TEXT,
+    "especialidad" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Trainer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -74,13 +84,22 @@ CREATE TABLE "Pago" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Alumno_email_key" ON "Alumno"("email");
+CREATE UNIQUE INDEX "Alumno_userId_key" ON "Alumno"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Trainer_userId_key" ON "Trainer"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Asistencia_fecha_alumnoId_turnoId_key" ON "Asistencia"("fecha", "alumnoId", "turnoId");
 
 -- AddForeignKey
-ALTER TABLE "Alumno" ADD CONSTRAINT "Alumno_turnoId_fkey" FOREIGN KEY ("turnoId") REFERENCES "Turno"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Alumno" ADD CONSTRAINT "Alumno_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Alumno" ADD CONSTRAINT "Alumno_turnoId_fkey" FOREIGN KEY ("turnoId") REFERENCES "Turno"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Trainer" ADD CONSTRAINT "Trainer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Asistencia" ADD CONSTRAINT "Asistencia_alumnoId_fkey" FOREIGN KEY ("alumnoId") REFERENCES "Alumno"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
