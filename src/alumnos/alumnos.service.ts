@@ -80,6 +80,32 @@ export class AlumnosService {
     });
   }
 
+  async inscribirseTurno(userId: number, turnoId: number) {
+    const turno = await this.prisma.turno.findUnique({
+      where: { id: turnoId },
+    });
+
+    if (!turno) throw new NotFoundException('Turno no encontrado');
+
+    const alumno = await this.prisma.alumno.findUnique({
+      where: { userId },
+    });
+
+    if (!alumno) throw new NotFoundException('Alumno no encontrado');
+
+    return this.prisma.alumno.update({
+      where: { userId },
+      data: {
+        turnoId,
+      },
+      include: {
+        turno: true,
+        user: { select: { name: true, email: true } },
+      },
+    });
+  }
+
+
   async getProgreso(alumnoId: number) {
     const alumno = await this.prisma.alumno.findUnique({
       where: { id: alumnoId },

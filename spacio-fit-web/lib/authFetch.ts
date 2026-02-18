@@ -3,7 +3,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function authFetch(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
 
-  const res = await fetch(`${API_URL}${endpoint}`, {
+  const res = await fetch(`${endpoint}`, {
     ...options,
     headers: {
       ...(options.headers || {}),

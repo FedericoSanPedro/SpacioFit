@@ -11,6 +11,6 @@ export class RegisterDto {
   password: string;
 
   @IsOptional()
-  @IsIn(['ADMIN', 'TRAINER', 'STUDENT'])
-  role?: 'ADMIN' | 'TRAINER' | 'STUDENT';
+  @IsIn(['Admin', 'Trainer', 'Alumno'])
+  role?: 'Admin' | 'Trainer' | 'Alumno';
 }

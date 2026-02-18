@@ -1,3 +1,5 @@
+import { authFetch } from "./authFetch";
+
 export type Alumno = {
   id: number;
   nombre: string;
@@ -33,6 +35,16 @@ export type AsistenciaChartItem = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function getTurnos() {
+  const res = await authFetch(`${API_URL}/turnos`, {
+    method: 'GET',
+  });
+
+  if (!res.ok) throw new Error('Error al obtener turnos');
+
+  return res.json();
+}
 
 export async function getAlumnos() {
   const token = localStorage.getItem('token');

@@ -26,7 +26,6 @@ export class AsistenciaService {
       data: {
         fecha,
         asistio: dto.asistio,
-        pago: dto.pago,
         alumnoId: dto.alumnoId,
         turnoId: dto.turnoId,
       },

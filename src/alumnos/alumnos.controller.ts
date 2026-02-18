@@ -1,22 +1,30 @@
-import { BadRequestException, Controller, Get, Param, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Req } from '@nestjs/common';
 import { AlumnosService } from './alumnos.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { InscribirseTurnoDto } from './dto/inscribirse-turno.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('alumnos')
 export class AlumnosController {
-  constructor(private readonly alumnosService: AlumnosService) {
-  }
+  constructor(private readonly alumnosService: AlumnosService) {}
 
-  // Perfil del alumno logueado
   @Get('me')
   @Roles('Alumno')
   getMyProfile(@Req() req: any) {
     return this.alumnosService.getMyProfile(req.user.userId);
   }
-  
+
+  @Patch('me/turno')
+  @Roles('Alumno')
+  inscribirseTurno(
+    @Req() req: any,
+    @Body() dto: InscribirseTurnoDto,
+  ) {
+    return this.alumnosService.inscribirseTurno(req.user.userId, dto.turnoId);
+  }
+
   @Get()
   findAll() {
     return this.alumnosService.findAll();
@@ -37,5 +45,4 @@ export class AlumnosController {
 
     return this.alumnosService.getProgreso(alumnoId);
   }
-
 }
