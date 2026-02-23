@@ -34,7 +34,7 @@ export default function LoginPage() {
       const token = data.access_token ?? data.accessToken;
       localStorage.setItem('token', token);
 
-      router.push('/alumnos');
+      router.push('/turnos');
     } catch (err) {
       setError('Invalid email or password');
     } finally {

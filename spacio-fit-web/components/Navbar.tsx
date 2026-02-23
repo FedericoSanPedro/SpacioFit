@@ -31,6 +31,13 @@ export default function Navbar() {
         {isLogged ? (
           <>
             <Link
+              href="/turnos"
+              className="text-gray-300 hover:text-white transition"
+            >
+              Turnos
+            </Link>
+
+            <Link
               href="/alumnos"
               className="text-gray-300 hover:text-white transition"
             >

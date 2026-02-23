@@ -31,16 +31,6 @@ export class AsistenciaService {
       },
     });
 
-    // 👉 SUMA DE HORAS
-    if (dto.asistio) {
-      await this.prisma.alumno.update({
-        where: { id: dto.alumnoId },
-        data: {
-          horasTotales: { increment: 1 },
-        },
-      });
-    }
-
     return asistencia;
   }
 

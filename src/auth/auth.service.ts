@@ -26,6 +26,9 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const count = await this.prisma.alumno.count();
+    const codigoUnico = String(count + 1).padStart(3, '0');
+
     const user = await this.prisma.user.create({
       data: {
         name,

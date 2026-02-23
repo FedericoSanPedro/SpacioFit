@@ -10,13 +10,13 @@ export class TurnosService {
       include: {
         alumnos: {
           include: {
-            user: {
-              select: { name: true },
-            },
+            user: true,
           },
         },
       },
-      orderBy: { hora: 'asc' },
+      orderBy: {
+        id: 'asc',
+      },
     });
   }
 }

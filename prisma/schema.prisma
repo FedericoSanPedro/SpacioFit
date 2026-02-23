@@ -21,68 +21,97 @@ model User {
   role      Role     @default(Alumno)
   createdAt DateTime @default(now())
 
-  alumno   Alumno?
-  trainer   Trainer?
+  alumno  Alumno?
+  trainer Trainer?
 }
 
 model Alumno {
-  id            Int           @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId        Int           @unique
-  user          User          @relation(fields: [userId], references: [id])
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
 
-  whatsapp      String?
-  fechaInicio   DateTime      @default(now())
-  estado        String        @default("ACTIVO")
-  cumpleanos    DateTime?
-  horasTotales  Int           @default(0)
+  whatsapp    String?
+  fechaInicio DateTime  @default(now())
+  estado      String    @default("ACTIVO")
+  cumpleanos  DateTime?
+  createdAt   DateTime  @default(now())
 
   turnoId Int?
   turno   Turno? @relation(fields: [turnoId], references: [id])
 
-  asistencias   Asistencia[]
-
-  createdAt     DateTime      @default(now())
+  asistencias     Asistencia[]
+  pagos           Pago[]
+  certificaciones CertificacionAlumno[]
 }
 
 model Trainer {
-  id          Int       @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId      Int       @unique
-  user        User      @relation(fields: [userId], references: [id])
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
 
-  telefono    String?
+  telefono     String?
   especialidad String?
 
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Turno {
-  id        Int           @id @default(autoincrement())
-  hora      String      // "07:30"
-  alumnos   Alumno[]
+  id          Int          @id @default(autoincrement())
+  hora        String
+  alumnos     Alumno[]
   asistencias Asistencia[]
 }
 
 model Asistencia {
-  id          Int           @id @default(autoincrement())
-  fecha       DateTime
-  asistio     Boolean
+  id      Int      @id @default(autoincrement())
+  fecha   DateTime
+  asistio Boolean
 
-  alumnoId   Int      
-  alumno     Alumno    @relation(fields: [alumnoId], references: [id])
+  horas Float @default(1)
 
-  turnoId    Int      
-  turno      Turno     @relation(fields: [turnoId], references: [id])
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id])
+
+  turnoId Int
+  turno   Turno @relation(fields: [turnoId], references: [id])
 
   @@unique([fecha, alumnoId, turnoId])
 }
 
-model Nivel {
-  id              Int     @id @default(autoincrement())
-  nombre          String
-  horasMinimas    Int
-  reconocimiento  String
-  insignia        String?
+model Pago {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @default(now())
+  monto       Float
+  descripcion String? // "Mensualidad", "Clase suelta", etc.
+
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id])
 }
 
+model Nivel {
+  id             Int     @id @default(autoincrement())
+  nombre         String
+  horasMinimas   Int
+  reconocimiento String
+  insignia       String?
+
+  certificaciones CertificacionAlumno[]
+}
+
+model CertificacionAlumno {
+  id Int @id @default(autoincrement())
+
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id])
+
+  nivelId Int
+  nivel   Nivel @relation(fields: [nivelId], references: [id])
+
+  otorgado     Boolean   @default(false)
+  fechaLogro   DateTime  @default(now())
+  fechaEntrega DateTime?
+
+  @@unique([alumnoId, nivelId])
+}
